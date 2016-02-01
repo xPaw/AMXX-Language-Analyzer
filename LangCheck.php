@@ -3,9 +3,9 @@
 	
 	$Data = filter_input( INPUT_POST, 'data' );
 	
-	if( empty( $Data ) || StrPos( $Data, '[' ) === false )
+	if( empty( $Data ) || strpos( $Data, '[' ) === false )
 	{
-		Die( '<div class="alert alert-danger">empty input</div>' );
+		Die( '<div class="alert alert-danger">Your input does not look like a language file that can be scanned.</div>' );
 	}
 	
 	$Data     = explode( "\n", $Data );
