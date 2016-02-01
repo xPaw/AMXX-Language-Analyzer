@@ -1,51 +1,50 @@
 <?php
-	$Timer_Start = MicroTime( True );
+	$Timer_Start = microtime( true );
 	
-	$Data = Filter_Input( INPUT_POST, 'data' );
+	$Data = filter_input( INPUT_POST, 'data' );
 	
-	if( Empty( $Data ) || StrPos( $Data, '[' ) === FALSE )
+	if( empty( $Data ) || StrPos( $Data, '[' ) === false )
 	{
-		Die( '<div class="alert alert-danger">Empty input</div>' );
+		Die( '<div class="alert alert-danger">empty input</div>' );
 	}
 	
-	$Data     = Explode( "\n", $Data );
+	$Data     = explode( "\n", $Data );
 	$Number   = 0;
 	$OriginalLines = [];
 	$Errors   = [];
 	$SecNames = [];
 	$Formatters = [];
-	$Section  = "";
+	$FoundLanguages = [];
+	$Section   = '';
 	$MultiLine = false;
 	
 	$FormatterRegex = '/(%(?:\d+\$)?[+-]?(?:[ 0]|\'.{1})?-?\d*(?:\.\d+)?[bcdeEufFgGosxX])/';
 	
-	$Data[ ] = $Ending = "[" . UniqId( ) . "]";
+	$Data[ ] = $Ending = '[' . uniqid( ) . ']';
 	
-	$FoundLanguages = Array();
-	
-	ForEach( $Data as $Line )
+	foreach( $Data as $Line )
 	{
-		$Line = Trim( $Line );
+		$Line = trim( $Line );
 		$Number++;
 		
-		if( Empty( $Line ) || $Line[ 0 ] === ';' || ( $Line[ 0 ] === '/' && $Line[ 1 ] === '/' ) )
+		if( empty( $Line ) || $Line[ 0 ] === ';' || ( $Line[ 0 ] === '/' && $Line[ 1 ] === '/' ) )
 		{
 			continue;
 		}
 		
-		if( $Line[ 0 ] === '[' && StrLen( $Line ) >= 3 )
+		if( $Line[ 0 ] === '[' && strlen( $Line ) >= 3 )
 		{
-			if( !Empty( $Section ) )
+			if( !empty( $Section ) )
 			{
-				if( Empty( $SecNames ) )
+				if( empty( $SecNames ) )
 				{
 					AddError( 0, "error", $Section, "It's empty! No languages were found there." );
 				}
 				else
 				{
-					ForEach( $Default as $Name => $Dummy )
+					foreach( $Default as $Name => $Dummy )
 					{
-						if( !Array_Key_Exists( $Name, $SecNames ) )
+						if( !array_key_exists( $Name, $SecNames ) )
 						{
 							AddError( 0, "error", $Section, "Translation for <b>{$Name}</b> is missing" );
 						}
@@ -64,8 +63,8 @@
 				continue;
 			}
 			
-			$SecNames = Array( );
-			$Section  = SubStr( $Line, 1, 2 );
+			$SecNames = [];
+			$Section  = substr( $Line, 1, 2 );
 			
 			$FoundLanguages[ strtolower( $Section ) ] = true;
 			
@@ -73,7 +72,8 @@
 			{
 				AddError( $Number, "warning", $Section, "Found language tag, but 4th character wasn't closing one." .
 					"<br>AMXX only takes first 2 characters as identifier. To fix this mistake, change it to" .
-					" <b>[".HtmlEntities( $Section )."]</b>" );
+					" <b>[" . htmlentities( $Section ) . "]</b>"
+				);
 				
 				continue;
 			}
@@ -81,7 +81,7 @@
 			continue;
 		}
 		
-		if( Empty( $Section ) )
+		if( empty( $Section ) )
 		{
 			AddError( $Number, "warning", "", "Found line, but no language is set yet." );
 			continue;
@@ -89,9 +89,9 @@
 		
 		if( !$MultiLine )
 		{
-			if( ( $Pos = StrPos( $Line, '=' ) ) === FALSE )
+			if( ( $Pos = strpos( $Line, '=' ) ) === false )
 			{
-				if( StrPos( $Line, ':' ) === FALSE )
+				if( strpos( $Line, ':' ) === false )
 				{
 					AddError( $Number, "warning", $Section, "Invalid multi-lingual line." );
 				}
@@ -99,7 +99,7 @@
 				{
 					$MultiLine = true;
 					
-					$Line = Explode( ':', $Line, 2 );
+					$Line = explode( ':', $Line, 2 );
 				}
 			}
 			else
@@ -109,7 +109,7 @@
 					AddError( $Number, "warning", $Section, "There should be a space before and after <b>=</b> character." );
 				}
 				
-				$Line = Explode( '=', $Line, 2 );
+				$Line = explode( '=', $Line, 2 );
 			}
 		}
 		else
@@ -122,9 +122,9 @@
 			continue;
 		}
 		
-		$Name = HtmlEntities( Trim( $Line[ 0 ] ) );
+		$Name = htmlentities( Trim( $Line[ 0 ] ) );
 		
-		if( Array_Key_Exists( $Name, $SecNames ) )
+		if( array_key_exists( $Name, $SecNames ) )
 		{
 			AddError( $Number, "warning", $Section, "Translation for <b>{$Name}</b> already exists for this language." );
 			
@@ -141,7 +141,7 @@
 		}
 		else
 		{
-			if( !Array_Key_Exists( $Name, $Formatters ) )
+			if( !array_key_exists( $Name, $Formatters ) )
 			{
 				AddError( $Number, "info", $Section, "Default translation for <b>{$Name}</b> does not exist." );
 			}
@@ -159,7 +159,8 @@
 	
 	unset( $SecNames, $Formatters );
 	
-	$KnownLanguages = Array(
+	$KnownLanguages =
+	[
 		'en' => 'en',
 		'de' => 'de',
 		'sr' => 'sr',
@@ -183,7 +184,7 @@
 		'bs' => 'bs',
 		'ru' => 'ru',
 		'cn' => 'cn'
-	);
+	];
 	
 	foreach( $KnownLanguages as $Language )
 	{
@@ -208,9 +209,9 @@
 	
 	unset( $KnownLanguages );
 	
-	$Time = Number_Format( ( MicroTime( True ) - $Timer_Start ), 4, '.', '' );
+	$Time = Number_Format( ( microtime( true ) - $Timer_Start ), 4, '.', '' );
 	
-	if( Empty( $Errors ) )
+	if( empty( $Errors ) )
 	{
 		echo '<div class="alert alert-success">Congratulations! No errors were found.';
 		echo ' Analyzed <span class="text-primary">' . $Number . '</span> lines ';
@@ -303,5 +304,5 @@
 	{
 		global $Errors;
 		
-		$Errors[ $Section ][ ] = Array( $Line, $Type, $Error, $Name );
+		$Errors[ $Section ][ ] = [ $Line, $Type, $Error, $Name ];
 	}
