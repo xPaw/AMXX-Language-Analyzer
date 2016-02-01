@@ -42,7 +42,7 @@
 				}
 				else
 				{
-					foreach( $Default as $Name => $Dummy )
+					foreach( $OriginalLines as $Name => $Dummy )
 					{
 						if( !array_key_exists( $Name, $SecNames ) )
 						{
