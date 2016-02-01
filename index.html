@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>AMXX Language Analyzer</title>
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/simplex/bootstrap.min.css" crossorigin="anonymous">
+	<style type="text/css">
+		.footer {
+			text-align: center;
+			padding: 15px;
+			color: #555;
+		}
+		
+		.footer span {
+			color: #FA5994;
+		}
+		
+		#loadSpinner {
+			margin-left: 8px;
+			vertical-align: middle;
+			display: none;
+		}
+		
+		#amxxContent {
+			width: 100%;
+			height: 315px;
+			margin-bottom: 10px;
+		}
+		
+		h2 {
+			margin: 0 40px;
+			text-align: left;
+		}
+		
+		#results {
+			margin-top: 10px;
+		}
+		
+		#results h3 {
+			font-size: 1.17em;
+			font-weight: bold;
+		}
+		
+		ol pre {
+			margin: 10px 0 0;
+		}
+		
+		ol {
+			border: 1px solid #EAEBEE;
+			border-bottom: 0px;
+			list-style: none;
+			padding-left: 0px;
+		}
+		
+		ol#error_loop {
+			border: 0;
+		}
+		
+		ol li.msg_info, ol li.msg_warning, ol li.msg_error {
+			border-bottom: 1px solid #EAEBEE;
+			list-style-position: inside;
+			padding: 1em;
+			clear: both;
+		}
+		
+		ol li.msg_loop {
+			list-style-position: inside;
+			padding-bottom: 1em;
+			clear: both;
+		}
+		
+		ol li.msg_info:hover, ol li.msg_warning:hover, ol li.msg_error:hover,
+		ol li.msg_info:hover *, ol li.msg_warning:hover *, ol li.msg_error:hover * {
+			background-color: #fcfcfc;
+		}
+		
+		li span.err_type img {
+			margin-right: 6px;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body>
+	<div class="jumbotron">
+		<div class="container">
+			<h1>AMXX Language Analyzer</h1>
+		</div>
+	</div>
+	
+	<div class="container">
+		<form method="POST">
+			<textarea class="form-control" rows="12" id="amxxContent" autofocus required placeholder="Copy language file here, or you can also drag and drop it here."></textarea>
+			<button type="button" id="submit-button" class="btn btn-lg btn-block btn-warning">Go!</button>
+		</form>
+		
+		<h1 class="page-header">Results <img alt="Loading" src="loader.gif" id="loadSpinner"></h1>
+		
+		<div id="results">
+			<div class="alert alert-info">Paste contents of a language file in the form above and click "Go!" to analyze the file. You can also drag and drop the file.</div>
+		</div>
+		
+		<div class="footer">with <span>♥</span> by <a href="https://xpaw.me" target="_blank">xPaw</a></div>
+	</div>
+	
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		(function()
+		{
+			var button  = $( '#submit-button' );
+			var content = $( '#amxxContent' );
+			var results = $( '#results' );
+			var loadSpinner = $( '#loadSpinner' );
+			
+			button.click( function( )
+			{
+				button.attr( 'disabled', true );
+				loadSpinner.show( );
+				
+				$.ajax( {
+					url: 'LangCheck.php',
+					type: 'POST',
+					data: { data: content.val( ) },
+					success: function( a )
+					{
+						loadSpinner.hide( );
+						button.removeAttr( 'disabled' );
+						results.html( a );
+					},
+					error: function( )
+					{
+						results.html( '<div class="alert alert-danger">Something went wrong</div>' );
+					}
+				} );
+				
+				return false;
+			} );
+			
+			function handleFileSelect(evt)
+			{
+				evt.stopPropagation();
+				evt.preventDefault();
+				
+				var files = evt.dataTransfer.files;
+				
+				if( files.length > 1 )
+				{
+					alert( 'Only 1 file allowed in drag and drop.' );
+					return;
+				}
+				
+				var reader = new FileReader();  
+				reader.onload = function(event)
+				{
+					document.getElementById('amxxContent').value = event.target.result;
+				};
+				reader.readAsText(files[0], 'UTF-8');
+			}
+			
+			function handleDragOver(evt)
+			{
+				evt.stopPropagation();
+				evt.preventDefault();
+				evt.dataTransfer.dropEffect = 'copy';
+			}
+			
+			var dropZone = document.getElementById('amxxContent');
+			dropZone.addEventListener('dragover', handleDragOver, false);
+			dropZone.addEventListener('drop', handleFileSelect, false);
+		}());
+	</script>
+</body>
+</html>
