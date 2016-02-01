@@ -110,7 +110,7 @@
 		<div class="footer">with <span>♥</span> by <a href="https://xpaw.me" target="_blank">xPaw</a></div>
 	</div>
 	
-	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript">
 		(function()
 		{
@@ -127,53 +127,55 @@
 				$.ajax( {
 					url: 'LangCheck.php',
 					type: 'POST',
-					data: { data: content.val( ) },
+					dataType: 'html',
+					data:
+					{
+						data: content.val( )
+					},
 					success: function( a )
 					{
 						loadSpinner.hide( );
-						button.removeAttr( 'disabled' );
 						results.html( a );
 					},
 					error: function( )
 					{
 						results.html( '<div class="alert alert-danger">Something went wrong</div>' );
 					}
+				} ).always( function()
+				{
+					button.removeAttr( 'disabled' );
 				} );
 				
 				return false;
 			} );
 			
-			function handleFileSelect(evt)
+			content.on( 'drop', function( ev )
 			{
-				evt.stopPropagation();
-				evt.preventDefault();
-				
-				var files = evt.dataTransfer.files;
+				var files = ev.originalEvent.dataTransfer.files;
 				
 				if( files.length > 1 )
 				{
 					alert( 'Only 1 file allowed in drag and drop.' );
-					return;
+					return false;
 				}
 				
-				var reader = new FileReader();  
-				reader.onload = function(event)
+				var reader = new FileReader();
+				reader.onload = function( ev )
 				{
-					document.getElementById('amxxContent').value = event.target.result;
+					content.val( ev.target.result );
+					button.click();
 				};
-				reader.readAsText(files[0], 'UTF-8');
-			}
+				reader.readAsText( files[ 0 ], 'UTF-8' );
+				
+				return false;
+			} );
 			
-			function handleDragOver(evt)
+			content.on( 'dragover', function( ev )
 			{
-				evt.stopPropagation();
-				evt.preventDefault();
-				evt.dataTransfer.dropEffect = 'copy';
-			}
-			
-			var dropZone = document.getElementById('amxxContent');
-			dropZone.addEventListener('dragover', handleDragOver, false);
-			dropZone.addEventListener('drop', handleFileSelect, false);
+				ev.originalEvent.dataTransfer.dropEffect = 'move';
+				
+				return false;
+			} );
 		}());
 	</script>
 </body>
